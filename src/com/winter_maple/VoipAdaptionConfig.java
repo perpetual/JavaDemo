@@ -1,21 +1,15 @@
 package com.winter_maple;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.sun.tools.apt.mirror.apt.FilerImpl;
-import com.sun.tools.javac.util.Pair;
 import com.winter_maple.utils.JavaDemoUtil;
+import com.winter_maple.utils.SamplePair;
 
 public class VoipAdaptionConfig {
 
@@ -42,8 +36,8 @@ public class VoipAdaptionConfig {
 			Pattern tempPattern = null;
 			Matcher tempMatcher = null;
 			String tempString = null;
-			ArrayList<Pair<String, String>> keyList = loadStrings("keys.txt");
-			ArrayList<Pair<String, String>> valueList = loadStrings("values.txt");
+			ArrayList<SamplePair<String, String>> keyList = loadStrings("keys.txt");
+			ArrayList<SamplePair<String, String>> valueList = loadStrings("values.txt");
 			File writeFile = new File("result.txt");
 			writeFile.delete();
 			writeFile.createNewFile();
@@ -61,7 +55,7 @@ public class VoipAdaptionConfig {
 						tempString = m.group(1);
 						for (int keyIndex = 0; keyIndex < keyList.size(); ++keyIndex) {
 							String tempPatternString = String.format(KEY_EXPRESSION,
-									keyList.get(keyIndex).fst, keyList.get(keyIndex).fst);
+									keyList.get(keyIndex).mFirst, keyList.get(keyIndex).mSecond);
 							// System.out.println(tempPatternString);
 							tempPattern = Pattern.compile(tempPatternString);
 							tempMatcher = tempPattern.matcher(tempString);
@@ -77,14 +71,14 @@ public class VoipAdaptionConfig {
 					} else if (isFind && 2 == i && m.groupCount() > 0) {
 						tempString = m.group(1);
 						for (int valueIndex = 0; valueIndex < valueList.size(); ++valueIndex) {
-							String valueType = valueList.get(valueIndex).fst;
+							String valueType = valueList.get(valueIndex).mFirst;
 							String tempPatternString = String.format(VALUE_EXPRESSION,
 									valueType, valueType);
 							// System.out.println(tempPatternString);
 							tempPattern = Pattern.compile(tempPatternString);
 							tempMatcher = tempPattern.matcher(tempString);
 							if (tempMatcher.find() && tempMatcher.groupCount() > 0) {
-								writeLineString += valueList.get(valueIndex).snd + getValueAlias(valueType, tempMatcher.group(1));
+								writeLineString += getValueAlias(valueType, valueList.get(valueIndex).mSecond, tempMatcher.group(1));
 							}
 							if (valueIndex + 1 == valueList.size()) {
 								writeLineString += ";";
@@ -107,25 +101,27 @@ public class VoipAdaptionConfig {
 		}
 	}
 
-	private static ArrayList<Pair<String, String>> loadStrings(String str) {
+	private static ArrayList<SamplePair<String, String>> loadStrings(String str) {
 		try {
 			File file = new File(str);
-			ArrayList<Pair<String, String>> stringList = new ArrayList<Pair<String, String>>();
+			ArrayList<SamplePair<String, String>> stringList = new ArrayList<SamplePair<String, String>>();
 			BufferedReader reader = new BufferedReader(new FileReader(file));
 			String readLineString = null;
 			while (null != (readLineString = reader.readLine())) {
 				readLineString = readLineString.trim();
 				String[] tempStrings = readLineString.split(",");
 				String first = "";
-				String second = "";
+				String second = ""; 
 				if (null != tempStrings && tempStrings.length > 0 && null != tempStrings[0]) {
 					first = tempStrings[0].trim();
 				}
 				if (null != tempStrings && tempStrings.length > 1 && null != tempStrings[1]) {
 					second = tempStrings[1].trim();
 				}
-				Pair<String, String> pair =  new Pair<String, String>(first, second);
-				stringList.add(pair);
+				if (!JavaDemoUtil.isNullOrEmptyWithTrim(first)) {
+					SamplePair<String, String> pair =  new SamplePair<String, String>(first, second);
+					stringList.add(pair);
+				}
 			}
 			return stringList;
 		} catch (Exception e) {
@@ -139,19 +135,15 @@ public class VoipAdaptionConfig {
 	 * @param value
 	 * @return
 	 */
-	private static String getValueAlias(String valueType, String value) {
-		if (null == valueType && valueType.length() < 1) {
+	private static String getValueAlias(String valueType, String valueAlias, String value) {
+		if (JavaDemoUtil.isNullOrEmptyWithTrim(valueType)) {
 			return "";
 		}
 		valueType = valueType.trim();
 		value = value.trim();
-		String alias = "unknown";
-		if (valueType.contains("streamtype")) {
-		} else if (valueType.contentEquals("micmode")) {
-			
-		} else if (valueType.contentEquals("mode")) {
-			
-		}
-		return alias = value;
+		String alias = null;
+		alias = JavaDemoUtil.isNullOrEmptyWithTrim(valueAlias) ? valueType : valueAlias;
+
+		return alias + ":" + value;
 	}
 }
