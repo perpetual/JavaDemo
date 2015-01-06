@@ -1,0 +1,9 @@
+incallringstreamtype,呼入铃声流
+outcallringstreamtype,呼出铃声流
+phonemodenonvoip,铃声听筒模式
+speakermodenonvoip,铃声扬声器模式
+streamtype,通话听筒流
+speakerstreamtype,通话扬声器流
+phonemode,通话听筒模式
+speakermode,通话扬声器模式
+micmode,录音模式
