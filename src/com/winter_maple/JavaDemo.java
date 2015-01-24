@@ -3,12 +3,17 @@ package com.winter_maple;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.winter_maple.utils.ExcelUtil;
+
 
 
 public class JavaDemo {
 	
 	public static void main(String[] args) {
-		System.out.println("Hello World");
+		ExcelUtil eu = new ExcelUtil();
+		eu.open("xxx.xls");
+		eu.writeExcel(0, 0, "fefeefe");
+		eu.close();
 	}
 }
 

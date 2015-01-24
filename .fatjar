@@ -1,0 +1,14 @@
+#Fat Jar Configuration File
+#Wed Jan 07 13:28:40 CST 2015
+onejar.license.required=false
+manifest.classpath=
+manifest.removesigners=true
+onejar.checkbox=false
+jarname=VoipAdaption.jar
+manifest.mergeall=true
+manifest.mainclass=com.winter_maple.VoipAdaptionConfig
+manifest.file=<createnew>
+jarname.isextern=false
+onejar.expand=
+excludes=<jar|commons-codec-1.9.jar>
+includes=

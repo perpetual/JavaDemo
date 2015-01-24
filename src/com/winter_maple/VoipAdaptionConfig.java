@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.winter_maple.utils.ExcelUtil;
 import com.winter_maple.utils.JavaDemoUtil;
 import com.winter_maple.utils.SamplePair;
 
@@ -27,7 +28,7 @@ public class VoipAdaptionConfig {
 	public static void main(String[] args) {
 
 		File file = new File("qcdeviceinfo.conf");
-		Pattern p[] = { Pattern.compile("^\\[(deviceinfo\\d{1,4})\\]"),
+		Pattern p[] = { Pattern.compile("^\\[deviceinfo(\\d{1,4})\\]"),
 				Pattern.compile("^key=(.*)"), Pattern.compile("^val=(.*)") };
 		Matcher m = null;
 		try {
@@ -36,6 +37,15 @@ public class VoipAdaptionConfig {
 			Pattern tempPattern = null;
 			Matcher tempMatcher = null;
 			String tempString = null;
+			ExcelUtil excelUtil = new ExcelUtil();
+			int excelRowIndex = 1;
+			int excelColumnIndex = 0;
+			excelUtil.open("VoipAdaptionConfig.xls");
+			excelUtil.writeExcel(0, 0, "deviceID");
+			excelUtil.writeExcel(0, 1, "厂商");
+			excelUtil.writeExcel(0, 2, "机型");
+			excelUtil.writeExcel(0, 3, "版本");
+			excelUtil.writeExcel(0, 4, "适配项");
 			ArrayList<SamplePair<String, String>> keyList = loadStrings("keys.txt");
 			ArrayList<SamplePair<String, String>> valueList = loadStrings("values.txt");
 			File writeFile = new File("result.txt");
@@ -45,47 +55,59 @@ public class VoipAdaptionConfig {
 			while (null != (readLineString = reader.readLine())) {
 				readLineString = readLineString.trim();
 				String writeLineString = "";
+				String excelString = "";
 				for (int i = 0; i < p.length; ++i) {
 					m = p[i].matcher(readLineString);
 					boolean isFind = m.find();
 					if (isFind && 0 == i && m.groupCount() > 0) {	//deviceid
-						writeLineString += JavaDemoUtil.JAVA_SEPARATOR;
-						writeLineString += m.group(1) + ";";
+						if (writeFile.length() > 0) {
+							writeLineString += JavaDemoUtil.JAVA_SEPARATOR;
+							++excelRowIndex;
+							excelColumnIndex = 0;
+						}
+						excelString = m.group(1);
+						excelUtil.writeExcel(excelRowIndex, excelColumnIndex++, excelString);
+						writeLineString += excelString + ";";
 					} else if (isFind && 1 == i && m.groupCount() > 0) {	//
 						tempString = m.group(1);
 						for (int keyIndex = 0; keyIndex < keyList.size(); ++keyIndex) {
 							String tempPatternString = String.format(KEY_EXPRESSION,
 									keyList.get(keyIndex).mFirst, keyList.get(keyIndex).mSecond);
-							// System.out.println(tempPatternString);
+							
+							excelString = "";
 							tempPattern = Pattern.compile(tempPatternString);
 							tempMatcher = tempPattern.matcher(tempString);
 							if (tempMatcher.find() && tempMatcher.groupCount() > 0) {
-								writeLineString += tempMatcher.group(1);
+								excelString += tempMatcher.group(1);
 							}
+							excelUtil.writeExcel(excelRowIndex, excelColumnIndex++, excelString);
 							if (keyIndex + 1 == keyList.size()) {
-								writeLineString += ";";
+								excelString += ";";
 							} else {
-								writeLineString += ";";
+								excelString += ";";
 							}
+							writeLineString += excelString;
 						}
 					} else if (isFind && 2 == i && m.groupCount() > 0) {
 						tempString = m.group(1);
+						excelString = "";
 						for (int valueIndex = 0; valueIndex < valueList.size(); ++valueIndex) {
 							String valueType = valueList.get(valueIndex).mFirst;
 							String tempPatternString = String.format(VALUE_EXPRESSION,
 									valueType, valueType);
-							// System.out.println(tempPatternString);
 							tempPattern = Pattern.compile(tempPatternString);
 							tempMatcher = tempPattern.matcher(tempString);
 							if (tempMatcher.find() && tempMatcher.groupCount() > 0) {
-								writeLineString += getValueAlias(valueType, valueList.get(valueIndex).mSecond, tempMatcher.group(1));
+								excelString += getValueAlias(valueType, valueList.get(valueIndex).mSecond, tempMatcher.group(1));
 							}
 							if (valueIndex + 1 == valueList.size()) {
-								writeLineString += ";";
+								excelUtil.writeExcel(excelRowIndex, excelColumnIndex++, excelString);
+								excelString += ";";
 							} else {
-								writeLineString += ",";
+								excelString += ",";
 							}
 						}
+						writeLineString += excelString;
 					}
 				}
 				System.out.print(writeLineString);
@@ -95,6 +117,7 @@ public class VoipAdaptionConfig {
 			reader.close();
 			fos.flush();
 			fos.close();
+			excelUtil.close();
 		} catch (Exception e) {
 			System.out.println(e);
 		} finally {
