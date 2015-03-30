@@ -12,6 +12,7 @@ import com.winter_maple.utils.ExcelUtil;
 import com.winter_maple.utils.JavaDemoUtil;
 import com.winter_maple.utils.SamplePair;
 
+
 public class VoipAdaptionConfig {
 
 	private static final String KEY_EXPRESSION = ".*%s name=\"(.*?)\".*";
@@ -61,7 +62,7 @@ public class VoipAdaptionConfig {
 					boolean isFind = m.find();
 					if (isFind && 0 == i && m.groupCount() > 0) {	//deviceid
 						if (writeFile.length() > 0) {
-							writeLineString += JavaDemoUtil.JAVA_SEPARATOR;
+							writeLineString += JavaDemoUtil.LINE_SEPARATOR;
 							++excelRowIndex;
 							excelColumnIndex = 0;
 						}
@@ -120,7 +121,6 @@ public class VoipAdaptionConfig {
 			excelUtil.close();
 		} catch (Exception e) {
 			System.out.println(e);
-		} finally {
 		}
 	}
 
@@ -134,7 +134,7 @@ public class VoipAdaptionConfig {
 				readLineString = readLineString.trim();
 				String[] tempStrings = readLineString.split(",");
 				String first = "";
-				String second = ""; 
+				String second = "";
 				if (null != tempStrings && tempStrings.length > 0 && null != tempStrings[0]) {
 					first = tempStrings[0].trim();
 				}
@@ -142,7 +142,7 @@ public class VoipAdaptionConfig {
 					second = tempStrings[1].trim();
 				}
 				if (!JavaDemoUtil.isNullOrEmptyWithTrim(first)) {
-					SamplePair<String, String> pair =  new SamplePair<String, String>(first, second);
+					SamplePair<String, String> pair = new SamplePair<String, String>(first, second);
 					stringList.add(pair);
 				}
 			}
@@ -150,7 +150,6 @@ public class VoipAdaptionConfig {
 		} catch (Exception e) {
 			System.out.println(e);
 		}
-
 		return null;
 	}
 	

@@ -2,7 +2,7 @@ package com.winter_maple.utils;
 
 public class JavaDemoUtil {
 
-	public static final String JAVA_SEPARATOR = System.getProperty("line.separator");
+	public static final String LINE_SEPARATOR = System.getProperty("line.separator");
 
 	/**
 	 * 判断字符串是否为null或者为空串(先trim)
